@@ -22,7 +22,7 @@ from transformers import (
 from trl import SFTTrainer
 from typing import Optional
 from accelerate import Accelerator
-from finetuning.dataset_loader import DatasetLoader
+from dataset_loader import DatasetLoader
 import yaml
 import locale
 

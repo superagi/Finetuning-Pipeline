@@ -14,7 +14,7 @@ class DatasetLoader:
     def _load_dataset(self):
         # Load training split (you can process it here)
         self.train_dataset = load_dataset(
-            self.dataset_name, split="train[:20%]")
+            self.dataset_name, split="train[:20%]", use_auth_token="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")
         self.train_dataset = self.train_dataset.map(format_example)
         self.train_dataset = self.train_dataset.remove_columns(
             ['instruction', 'answer'])
