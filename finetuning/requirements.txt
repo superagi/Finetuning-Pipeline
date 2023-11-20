@@ -1,0 +1,10 @@
+dataclasses
+transformers
+datasets
+trl
+accelerate
+awscli
+peft
+bitsandbytes
+scipy
+wandb

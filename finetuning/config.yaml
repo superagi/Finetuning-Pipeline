@@ -1,0 +1,31 @@
+BASE_MODEL: "mistralai/Mistral-7B-v0.1"
+DATASET_NAME: "SAGI-1/reasoningData_500k"
+NEW_MODEL: "test_1"
+use_bf16: True
+use_4bit_bnb: True
+OUTPUT_DIR: "./results"
+LEARNING_RATE: 2.0e-4
+
+NUM_EPOCHS: 1
+BATCH_SIZE: 32
+GRAD_ACCUMULATION_STEPS: 2 # effective backprop @ batch_size*grad_accum_steps
+GRADIENT_CHECKPOINTING: True # speed down by ~20%, improves mem. efficiency
+
+OPTIMIZER: "adamw_hf"
+#OPTIMIZER: "AdamW"
+# OPTIMIZER: "adamw_torch_fused" # use with pytorch compile
+WEIGHT_DECAY: 0.1
+LR_SCHEDULER_TYPE: "cosine" # examples include ["linear", "cosine", "constant"]
+MAX_GRAD_NORM: 1 # clip the gradients after the value
+WARMUP_RATIO: 0.1 # The lr takes 3% steps to reach stability
+
+SAVE_STRATERGY: "steps"
+SAVE_STEPS: 10
+SAVE_TOTAL_LIMIT: 5
+LOAD_BEST_MODEL_AT_END: True
+
+REPORT_TO: "wandb"
+LOGGING_STEPS: 1
+
+PACKING: True
+MAX_SEQ_LENGTH: 1024
