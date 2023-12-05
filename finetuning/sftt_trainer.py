@@ -26,6 +26,8 @@ from dataset_loader import DatasetLoader
 import yaml
 import locale
 
+from merge_adapters import merge_adapters_with_base_model
+
 accelerator = Accelerator()
 
 # Device map
@@ -223,7 +225,8 @@ EVAL_STEPS = SAVE_STEPS
 PACKING = config["PACKING"]
 MAX_SEQ_LENGTH = config["MAX_SEQ_LENGTH"]
 
-
+PUSH_TO_HUB = config["PUSH_TO_HUB"]
+HF_MODEL_NAME = config["HF_MODEL_NAME"]
 def calculate_steps():
     dataset_size = len(train_dataset)
     steps_per_epoch = dataset_size / (BATCH_SIZE * GRAD_ACCUMULATION_STEPS)
@@ -288,3 +291,5 @@ trainer.train()
 
 # Save the model
 trainer.model.save_pretrained(NEW_MODEL)
+
+merge_adapters_with_base_model(adapter_model_name=NEW_MODEL, base_model_name=BASE_MODEL, output_name=HF_MODEL_NAME)
