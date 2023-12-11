@@ -1,14 +1,14 @@
 BASE_MODEL: "mistralai/Mistral-7B-v0.1"
-DATASET_NAME: "SAGI-1/reasoningData_500k"
-NEW_MODEL: "test_1"
+DATASET_NAME: "SAGI-1/SYMBOLIC_DATA_FACTS_2_FOL"
+NEW_MODEL: "AGI_1_2_SFT_SYMBOLIC_FACTS_2_FOL_LEVEL_1"
 use_bf16: True
 use_4bit_bnb: False
 OUTPUT_DIR: "./results"
-LEARNING_RATE: 2.0e-4
+LEARNING_RATE: 2.0e-5
 
 NUM_EPOCHS: 1
-BATCH_SIZE: 12
-GRAD_ACCUMULATION_STEPS: 2 # effective backprop @ batch_size*grad_accum_steps
+BATCH_SIZE: 8
+GRAD_ACCUMULATION_STEPS: 4 # effective backprop @ batch_size*grad_accum_steps
 GRADIENT_CHECKPOINTING: True # speed down by ~20%, improves mem. efficiency
 
 OPTIMIZER: "adamw_hf"
@@ -20,15 +20,15 @@ MAX_GRAD_NORM: 1 # clip the gradients after the value
 WARMUP_RATIO: 0.1 # The lr takes 3% steps to reach stability
 
 SAVE_STRATERGY: "steps"
-SAVE_STEPS: 500
+SAVE_STEPS: 100
 SAVE_TOTAL_LIMIT: 5
 LOAD_BEST_MODEL_AT_END: True
 
 REPORT_TO: "wandb"
 LOGGING_STEPS: 1
 
-PACKING: True
-MAX_SEQ_LENGTH: 1024
+PACKING: False
+MAX_SEQ_LENGTH: 2048
 
 # Hugging Face Upload
 

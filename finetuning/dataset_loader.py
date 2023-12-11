@@ -2,7 +2,7 @@ from datasets import load_dataset
 
 
 def format_example(example):
-    return {"text": f"[INST] {example['instruction']} [/INST] {example['answer']}"}
+    return {"text": f"[INST] {example['instruction']} [/INST] {example['answer']} "}
 
 
 class DatasetLoader:
@@ -14,7 +14,7 @@ class DatasetLoader:
     def _load_dataset(self):
         # Load training split (you can process it here)
         self.train_dataset = load_dataset(
-            self.dataset_name, use_auth_token="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")
+            self.dataset_name, split='train', use_auth_token="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")
         self.train_dataset = self.train_dataset.map(format_example)
         self.train_dataset = self.train_dataset.remove_columns(
             ['instruction', 'answer'])
