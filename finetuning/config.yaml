@@ -27,7 +27,7 @@ LOAD_BEST_MODEL_AT_END: True
 REPORT_TO: "wandb"
 LOGGING_STEPS: 1
 
-PACKING: False
+PACKING: True
 MAX_SEQ_LENGTH: 2048
 
 # Hugging Face Upload

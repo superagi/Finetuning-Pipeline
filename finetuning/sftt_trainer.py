@@ -69,128 +69,128 @@ BASE_MODEL = config["BASE_MODEL"]
 DATASET_NAME = config["DATASET_NAME"]
 NEW_MODEL = config["NEW_MODEL"]
 
-# float_16_dtype = torch.float16
-# use_bf16 = config["use_bf16"]
-# use_4bit_bnb = config["use_4bit_bnb"]
+float_16_dtype = torch.float16
+use_bf16 = config["use_bf16"]
+use_4bit_bnb = config["use_4bit_bnb"]
 
-# compute_dtype = getattr(torch, "float16")
+compute_dtype = getattr(torch, "float16")
 
-# # Check GPU compatibility with bfloat16
-# # If the gpu is 'bf15' compatible, set the flag to `True`
-# if compute_dtype == torch.float16 and use_4bit_bnb:
-#     major, _ = torch.cuda.get_device_capability()
-#     if major >= 8:
-#         print("=" * 80)
-#         print("Your GPU supports bfloat16: accelerate training with bf16=True")
-#         print("Changing floating point type to `torch.bfloat16`")
-#         float_16_dtype = torch.bfloat16
-#         use_bf16 = True
-#         print("=" * 80)
-#     else:
-#         print("Your GPU does not support bfloat16")
-# # Bits and Bytes configurations
-# # Used to quantize the model for memory saving
-# bnb_config = BitsAndBytesConfig(
-#     load_in_4bit=use_4bit_bnb,
-#     bnb_4bit_quant_type="nf4",
-#     bnb_4bit_compute_dtype=torch.bfloat16,
-#     bnb_4bit_use_double_quant=True,
-# )
+# Check GPU compatibility with bfloat16
+# If the gpu is 'bf15' compatible, set the flag to `True`
+if compute_dtype == torch.float16 and use_4bit_bnb:
+    major, _ = torch.cuda.get_device_capability()
+    if major >= 8:
+        print("=" * 80)
+        print("Your GPU supports bfloat16: accelerate training with bf16=True")
+        print("Changing floating point type to `torch.bfloat16`")
+        float_16_dtype = torch.bfloat16
+        use_bf16 = True
+        print("=" * 80)
+    else:
+        print("Your GPU does not support bfloat16")
+# Bits and Bytes configurations
+# Used to quantize the model for memory saving
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=use_4bit_bnb,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.bfloat16,
+    bnb_4bit_use_double_quant=True,
+)
 
-# # Loading the tokenizer
-# tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, trust_remote_code=True)
-# tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-# tokenizer.pad_token = tokenizer.eos_token
-# tokenizer.padding_side = "right"
+# Loading the tokenizer
+tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, trust_remote_code=True)
+tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+tokenizer.pad_token = tokenizer.eos_token
+tokenizer.padding_side = "right"
 
-# # Supress fast_tokenizer warning
-# tokenizer.deprecation_warnings["Asking-to-pad-a-fast-tokenizer"] = True
+# Supress fast_tokenizer warning
+tokenizer.deprecation_warnings["Asking-to-pad-a-fast-tokenizer"] = True
 
-# # Loading the model
-# if use_4bit_bnb:
-#     model = AutoModelForCausalLM.from_pretrained(
-#         BASE_MODEL,
-#         quantization_config=bnb_config,
-#         # device_map=DEVICE_MAP
-#     )
-# else:
-#     model = AutoModelForCausalLM.from_pretrained(
-#         BASE_MODEL,
-#         # device_map="auto"
-#         # device_map=DEVICE_MAP
-#     )
-# model.config.use_cache = False
-# model.config.pretraining_tp = 1
+# Loading the model
+if use_4bit_bnb:
+    model = AutoModelForCausalLM.from_pretrained(
+        BASE_MODEL,
+        quantization_config=bnb_config,
+        # device_map=DEVICE_MAP
+    )
+else:
+    model = AutoModelForCausalLM.from_pretrained(
+        BASE_MODEL,
+        # device_map="auto"
+        # device_map=DEVICE_MAP
+    )
+model.config.use_cache = False
+model.config.pretraining_tp = 1
 
-# # View Model summary
-# # Will dictate the LoRA configuration:
-# # Specifically, which layers to fit the adapters to
-# print("=" * 80)
-# print("Model Summary")
-# print(model)
-# print("=" * 80)
+# View Model summary
+# Will dictate the LoRA configuration:
+# Specifically, which layers to fit the adapters to
+print("=" * 80)
+print("Model Summary")
+print(model)
+print("=" * 80)
 
-# # Some [optional] pre-processing which
-# # helps improve the stability of the training
-# for param in model.parameters():
-#     param.requires_grad = False  # freeze the model - train adapters later
-#     if param.ndim == 1:
-#         # cast the small parameters (e.g. layernorm) to fp32 for stability
-#         param.data = param.data.to(torch.float32)
+# Some [optional] pre-processing which
+# helps improve the stability of the training
+for param in model.parameters():
+    param.requires_grad = False  # freeze the model - train adapters later
+    if param.ndim == 1:
+        # cast the small parameters (e.g. layernorm) to fp32 for stability
+        param.data = param.data.to(torch.float32)
 
-# model.gradient_checkpointing_enable()  # reduce number of stored activations
-# model.enable_input_require_grads()
-
-
-# class CastOutputToFloat(torch.nn.Sequential):
-#     def forward(self, x): return super().forward(x).to(torch.float32)
+model.gradient_checkpointing_enable()  # reduce number of stored activations
+model.enable_input_require_grads()
 
 
-# model.lm_head = CastOutputToFloat(model.lm_head)
-
-# # Helper Function
-
-
-# def print_trainable_parameters(model):
-#     """
-#     Prints the number of trainable parameters in the model.
-#     """
-#     trainable_params = 0
-#     all_param = 0
-#     for _, param in model.named_parameters():
-#         all_param += param.numel()
-#         if param.requires_grad:
-#             trainable_params += param.numel()
-#     print(
-#         f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param}"
-#     )
-#     print("=" * 80)
+class CastOutputToFloat(torch.nn.Sequential):
+    def forward(self, x): return super().forward(x).to(torch.float32)
 
 
-# LORA_TARGET_MODULES_LLAMA_2 = [
-#     "q_proj",
-#     "o_proj",
-#     "v_proj"
-#     "k_proj",
-#     "up_proj",
-#     "down_proj",
-#     "gate_proj",
-# ]
+model.lm_head = CastOutputToFloat(model.lm_head)
 
-# peft_config = LoraConfig(
-#     r=8,
-#     lora_alpha=16,
-#     target_modules=LORA_TARGET_MODULES_LLAMA_2,
-#     lora_dropout=0.05,
-#     bias="none",
-#     task_type="CAUSAL_LM"
-# )
+# Helper Function
 
-# model = get_peft_model(model, peft_config)
-# print_trainable_parameters(model)
 
-# dataset_loader = DatasetLoader(DATASET_NAME)
-# train_dataset, test_dataset = dataset_loader.get_dataset()
+def print_trainable_parameters(model):
+    """
+    Prints the number of trainable parameters in the model.
+    """
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(
+        f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param}"
+    )
+    print("=" * 80)
+
+
+LORA_TARGET_MODULES_LLAMA_2 = [
+    "q_proj",
+    "o_proj",
+    "v_proj"
+    "k_proj",
+    "up_proj",
+    "down_proj",
+    "gate_proj",
+]
+
+peft_config = LoraConfig(
+    r=8,
+    lora_alpha=16,
+    target_modules=LORA_TARGET_MODULES_LLAMA_2,
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
+
+model = get_peft_model(model, peft_config)
+print_trainable_parameters(model)
+
+dataset_loader = DatasetLoader(DATASET_NAME)
+train_dataset, test_dataset = dataset_loader.get_dataset()
 
 # # Training arguments
 OUTPUT_DIR = config["OUTPUT_DIR"]
@@ -228,69 +228,71 @@ MAX_SEQ_LENGTH = config["MAX_SEQ_LENGTH"]
 PUSH_TO_HUB = config["PUSH_TO_HUB"]
 HF_MODEL_NAME = config["HF_MODEL_NAME"]
 
-# def calculate_steps():
-#     dataset_size = len(train_dataset)
-#     steps_per_epoch = dataset_size / (BATCH_SIZE * GRAD_ACCUMULATION_STEPS)
-#     total_steps = steps_per_epoch * NUM_EPOCHS
+def calculate_steps():
+    dataset_size = len(train_dataset)
+    steps_per_epoch = dataset_size / (BATCH_SIZE * GRAD_ACCUMULATION_STEPS)
+    total_steps = steps_per_epoch * NUM_EPOCHS
 
-#     print(f"Total number of steps: {total_steps}")
+    print(f"Total number of steps: {total_steps}")
 
 
-# calculate_steps()
+calculate_steps()
 
-# training_arguments = TrainingArguments(
-#     output_dir=OUTPUT_DIR,
-#     learning_rate=LEARNING_RATE,
-#     num_train_epochs=NUM_EPOCHS,
-#     per_device_train_batch_size=BATCH_SIZE,
-#     gradient_accumulation_steps=GRAD_ACCUMULATION_STEPS,
-#     gradient_checkpointing=GRADIENT_CHECKPOINTING,
+training_arguments = TrainingArguments(
+    output_dir=OUTPUT_DIR,
+    learning_rate=LEARNING_RATE,
+    num_train_epochs=NUM_EPOCHS,
+    per_device_train_batch_size=BATCH_SIZE,
+    gradient_accumulation_steps=GRAD_ACCUMULATION_STEPS,
+    gradient_checkpointing=GRADIENT_CHECKPOINTING,
 
-#     optim=OPTIMIZER,
-#     weight_decay=WEIGHT_DECAY,
-#     max_grad_norm=MAX_GRAD_NORM,
-#     fp16=not use_bf16,
-#     bf16=use_bf16,
-#     warmup_ratio=WARMUP_RATIO,
-#     lr_scheduler_type=LR_SCHEDULER_TYPE,
+    optim=OPTIMIZER,
+    weight_decay=WEIGHT_DECAY,
+    max_grad_norm=MAX_GRAD_NORM,
+    fp16=not use_bf16,
+    bf16=use_bf16,
+    warmup_ratio=WARMUP_RATIO,
+    lr_scheduler_type=LR_SCHEDULER_TYPE,
 
-#     # torch_compile=False,
-#     group_by_length=False,
+    # torch_compile=False,
+    group_by_length=False,
 
-#     save_strategy=SAVE_STRATERGY,
-#     save_steps=SAVE_STEPS,
-#     # save_total_limit=SAVE_TOTAL_LIMIT,
-#     load_best_model_at_end=LOAD_BEST_MODEL_AT_END,
+    save_strategy=SAVE_STRATERGY,
+    save_steps=SAVE_STEPS,
+    # save_total_limit=SAVE_TOTAL_LIMIT,
+    load_best_model_at_end=LOAD_BEST_MODEL_AT_END,
 
-#     evaluation_strategy=SAVE_STRATERGY,
-#     eval_steps=EVAL_STEPS,
+    evaluation_strategy=SAVE_STRATERGY,
+    eval_steps=EVAL_STEPS,
 
-#     dataloader_pin_memory=True,
-#     dataloader_num_workers=4,
+    dataloader_pin_memory=True,
+    dataloader_num_workers=4,
 
-#     logging_steps=LOGGING_STEPS,
-#     report_to=REPORT_TO,
-# )
+    logging_steps=LOGGING_STEPS,
+    report_to=REPORT_TO,
+)
 
-# # Define the Supervised-Finetuning-Trainer from huggingface
-# trainer = SFTTrainer(
-#     model=model,
-#     tokenizer=tokenizer,
-#     peft_config=peft_config,
+# Define the Supervised-Finetuning-Trainer from huggingface
+trainer = SFTTrainer(
+    model=model,
+    tokenizer=tokenizer,
+    peft_config=peft_config,
 
-#     train_dataset=train_dataset,
-#     eval_dataset=test_dataset,
-#     dataset_text_field="text",
+    train_dataset=train_dataset,
+    eval_dataset=test_dataset,
+    dataset_text_field="text",
 
-#     args=training_arguments,
-#     max_seq_length=MAX_SEQ_LENGTH,
-#     packing=PACKING,
-# )
+    args=training_arguments,
+    max_seq_length=MAX_SEQ_LENGTH,
+    packing=PACKING,
+)
 
-# # Train model from scratch
-# trainer.train()
+# Train model from scratch
+trainer.train()
 
-# # Save the model
-# trainer.model.save_pretrained(NEW_MODEL)
+# Save the model
+trainer.model.save_pretrained(NEW_MODEL)
 
-merge_adapters_with_base_model(adapter_model_name=NEW_MODEL, base_model_name=BASE_MODEL, output_name=HF_MODEL_NAME)
+push_model_to_hub = config["PUSH_TO_HUB"]
+if push_model_to_hub:
+    merge_adapters_with_base_model(adapter_model_name=NEW_MODEL, base_model_name=BASE_MODEL, output_name=HF_MODEL_NAME)
