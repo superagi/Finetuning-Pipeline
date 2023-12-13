@@ -100,7 +100,7 @@ bnb_config = BitsAndBytesConfig(
 # Loading the tokenizer
 tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, trust_remote_code=True)
 tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-tokenizer.pad_token = tokenizer.eos_token
+# tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "right"
 
 # Supress fast_tokenizer warning
