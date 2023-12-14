@@ -32,5 +32,7 @@ MAX_SEQ_LENGTH: 2048
 
 # Hugging Face Upload
 
+# name of the adapter model to be uploaded will be SAG-1/{output_dir}
+SAVE_ADAPTER_TO_HUB: False
 PUSH_TO_HUB: True
 HF_MODEL_NAME: "SAGI-1/AGI_1_2_SFT_SYMBOLIC_FACTS_2_FOL_LEVEL_1"
