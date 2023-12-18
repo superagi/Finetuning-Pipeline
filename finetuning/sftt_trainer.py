@@ -293,7 +293,7 @@ trainer.train()
 # Save the model
 trainer.model.save_pretrained(NEW_MODEL)
 
-#Save the adapter to hugging face
+# Save the adapter to hugging face
 save_adapter_to_hub = config["SAVE_ADAPTER_TO_HUB"]
 if save_adapter_to_hub:
     trainer.push_to_hub()
