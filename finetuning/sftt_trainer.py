@@ -298,7 +298,7 @@ save_adapter_to_hub = config["SAVE_ADAPTER_TO_HUB"]
 if save_adapter_to_hub:
     trainer.push_to_hub()
 
-# Merge adapter and base model and push it to hugging face
+# Merge adapter and base model and then push the merged model to hugging face
 push_model_to_hub = config["PUSH_TO_HUB"]
 if push_model_to_hub:
     merge_adapters_with_base_model(adapter_model_name=NEW_MODEL, base_model_name=BASE_MODEL, output_name=HF_MODEL_NAME)
