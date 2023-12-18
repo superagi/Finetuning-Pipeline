@@ -1,6 +1,6 @@
 dataclasses==0.6
 datasets==2.15.0
-transformers==4.35.2
+transformers==4.36.0
 trl==0.7.4
 accelerate==0.24.1
 awscli==1.30.3
@@ -9,3 +9,4 @@ scipy==1.11.4
 bitsandbytes==0.41.2.post2
 wandb==0.16.0
 deepspeed==0.12.3
+huggingface==0.0.1

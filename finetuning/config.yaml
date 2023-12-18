@@ -1,10 +1,10 @@
-BASE_MODEL: "mistralai/Mistral-7B-v0.1"
-DATASET_NAME: "SAGI-1/SYMBOLIC_DATA_FACTS_2_FOL"
-NEW_MODEL: "AGI_1_2_SFT_SYMBOLIC_FACTS_2_FOL_LEVEL_1"
+BASE_MODEL: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+DATASET_NAME: "SAGI-1/g_data"
+NEW_MODEL: "g_moe"
 use_bf16: True
 use_4bit_bnb: False
 OUTPUT_DIR: "./results"
-LEARNING_RATE: 2.0e-5
+LEARNING_RATE: 2.0e-4
 
 NUM_EPOCHS: 1
 BATCH_SIZE: 8
@@ -34,5 +34,5 @@ MAX_SEQ_LENGTH: 2048
 
 # name of the adapter model to be uploaded will be SAG-1/{output_dir}
 SAVE_ADAPTER_TO_HUB: False
-PUSH_TO_HUB: True
-HF_MODEL_NAME: "SAGI-1/AGI_1_2_SFT_SYMBOLIC_FACTS_2_FOL_LEVEL_1"
+PUSH_TO_HUB: False
+HF_MODEL_NAME: "SAGI-1/g_moe"
