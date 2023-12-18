@@ -167,7 +167,7 @@ def print_trainable_parameters(model):
     print("=" * 80)
 
 
-LORA_TARGET_MODULES_LLAMA_2 = [
+LORA_TARGET_MODULES = [
     "q_proj",
     "o_proj",
     "v_proj"
@@ -180,7 +180,7 @@ LORA_TARGET_MODULES_LLAMA_2 = [
 peft_config = LoraConfig(
     r=8,
     lora_alpha=16,
-    target_modules=LORA_TARGET_MODULES_LLAMA_2,
+    target_modules=LORA_TARGET_MODULES,
     lora_dropout=0.05,
     bias="none",
     task_type="CAUSAL_LM"
