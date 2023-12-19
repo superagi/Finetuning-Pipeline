@@ -228,6 +228,7 @@ MAX_SEQ_LENGTH = config["MAX_SEQ_LENGTH"]
 PUSH_TO_HUB = config["PUSH_TO_HUB"]
 HF_MODEL_NAME = config["HF_MODEL_NAME"]
 
+
 def calculate_steps():
     dataset_size = len(train_dataset)
     steps_per_epoch = dataset_size / (BATCH_SIZE * GRAD_ACCUMULATION_STEPS)
@@ -302,4 +303,5 @@ if save_adapter_to_hub:
 push_model_to_hub = config["PUSH_TO_HUB"]
 merge_model = config["MERGE_MODEL"]
 if merge_model:
-    merge_adapters_with_base_model(adapter_model_name=NEW_MODEL, base_model_name=BASE_MODEL, output_name=HF_MODEL_NAME, push_model_to_hub=push_model_to_hub)
+    merge_adapters_with_base_model(adapter_model_name=NEW_MODEL, base_model_name=BASE_MODEL,
+                                   output_name=HF_MODEL_NAME, push_model_to_hub=push_model_to_hub)
