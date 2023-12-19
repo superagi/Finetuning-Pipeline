@@ -235,6 +235,7 @@ def calculate_steps():
     total_steps = steps_per_epoch * NUM_EPOCHS
 
     print(f"Total number of steps: {total_steps}")
+    # Correct no of steps = (dataset_size / (BATCH_SIZE * GRAD_ACCUMULATION_STEPS * NUM_OF_GPUs)) * NUM_EPOCHS
 
 
 calculate_steps()
