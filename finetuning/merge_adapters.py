@@ -5,7 +5,7 @@ from peft import PeftConfig, PeftModel
 from transformers import AutoModelForCausalLM, AutoModelForSequenceClassification, AutoTokenizer, HfArgumentParser
 
 
-def merge_adapters_with_base_model(adapter_model_name: str, base_model_name: str, output_name: str):
+def merge_adapters_with_base_model(adapter_model_name: str, base_model_name: str, output_name: str, push_model_to_hub: bool):
     print(f"Merging Adapters weights {adapter_model_name} X {base_model_name} = {output_name}")
     peft_config = PeftConfig.from_pretrained(adapter_model_name)
     if peft_config.task_type == "SEQ_CLS":
@@ -28,4 +28,5 @@ def merge_adapters_with_base_model(adapter_model_name: str, base_model_name: str
 
     model.save_pretrained(f"{output_name}")
     tokenizer.save_pretrained(f"{output_name}")
-    model.push_to_hub(f"{output_name}")
+    if push_model_to_hub:
+        model.push_to_hub(f"{output_name}")
