@@ -12,11 +12,11 @@ def merge_adapters_with_base_model(adapter_model_name: str, base_model_name: str
     if peft_config.task_type == "SEQ_CLS":
         # The sequence classification task is used for the reward model in PPO
         model = AutoModelForSequenceClassification.from_pretrained(
-            base_model_name, num_labels=1, torch_dtype=torch.bfloat16
+            base_model_name, num_labels=1, torch_dtype=torch.float16
         )
     else:
         model = AutoModelForCausalLM.from_pretrained(
-            base_model_name, return_dict=True, torch_dtype=torch.bfloat16
+            base_model_name, return_dict=True, torch_dtype=torch.float16
         )
 
     tokenizer = AutoTokenizer.from_pretrained(base_model_name)
@@ -31,3 +31,5 @@ def merge_adapters_with_base_model(adapter_model_name: str, base_model_name: str
     tokenizer.save_pretrained(f"{output_name}")
     if push_model_to_hub:
         model.push_to_hub(f"{output_name}")
+
+#merge_adapters_with_base_model("/workspace/Finetuning-Pipeline/chat_test_base", "mistralai/Mistral-7B-v0.1", "SAGI-1/chat_test_base", True)
