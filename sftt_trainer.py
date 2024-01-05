@@ -83,8 +83,8 @@ if compute_dtype == torch.float16 and use_4bit_bnb:
         print("=" * 80)
         print("Your GPU supports bfloat16: accelerate training with bf16=True")
         print("Changing floating point type to `torch.float16`")
-        float_16_dtype = torch.float16
-        use_bf16 = False
+        float_16_dtype = torch.bfloat16
+        use_bf16 = True
         print("=" * 80)
     else:
         print("Your GPU does not support bfloat16")
@@ -93,7 +93,7 @@ if compute_dtype == torch.float16 and use_4bit_bnb:
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=use_4bit_bnb,
     bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_compute_dtype=torch.bfloat16,
     bnb_4bit_use_double_quant=True,
 )
 
@@ -136,14 +136,14 @@ for param in model.parameters():
     param.requires_grad = False  # freeze the model - train adapters later
     if param.ndim == 1:
         # cast the small parameters (e.g. layernorm) to fp32 for stability
-        param.data = param.data.to(torch.float16)
+        param.data = param.data.to(torch.float32)
 
 model.gradient_checkpointing_enable()  # reduce number of stored activations
 model.enable_input_require_grads()
 
 
 class CastOutputToFloat(torch.nn.Sequential):
-    def forward(self, x): return super().forward(x).to(torch.float16)
+    def forward(self, x): return super().forward(x).to(torch.float32)
 
 
 model.lm_head = CastOutputToFloat(model.lm_head)
